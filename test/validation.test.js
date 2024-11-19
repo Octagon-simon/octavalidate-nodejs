@@ -12,7 +12,6 @@ const rules = {
     username: {
         required: true,
         ruleTitle: "userName",
-        type: "string",
         errorMessage: {
             required: "Your username is required",
             ruleTitle: "Your username contains invalid characters",
@@ -22,7 +21,6 @@ const rules = {
     phone: {
         required: true,
         pattern: /^\+234[789]\d{9}$/,
-        type: "string",
         errorMessage: {
             required: "Your phone number is required",
             pattern: "Invalid phone number format"
@@ -30,7 +28,6 @@ const rules = {
     },
     password: {
         required: true,
-        type: "string",
         ruleTitle: "strongPassword",
         errorMessage: {
             required: "Your password is required",
@@ -40,7 +37,6 @@ const rules = {
     },
     email: {
         required: true,
-        type: "string",
         pattern: /^[a-zA-Z0-9.!#$%&'*+/=?^_{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/,
         errorMessage: {
             pattern: "The email address you provided is invalid!",

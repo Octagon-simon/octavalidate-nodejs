@@ -19,11 +19,10 @@ You can validate both files and non-file objects
 ### OVERVIEW
 
 ```javascript
+//JavaScript
+
 //import library
 const Octavalidate = require("octavalidate-nodejs");
-
-//or
-import Octavalidate from 'octavalidate-nodejs';
 
 //create new validation instance
 const octavalidate = new Octavalidate("ROUTE_IDENTIFIER");
@@ -32,43 +31,67 @@ const octavalidate = new Octavalidate("ROUTE_IDENTIFIER");
 const { createValidator, validate, getError, getErrors } = octavalidate;
 
 //define validation rules
-const validationRules = {
+const rules = {
   username: {
     required: true,
-    type: "string",
     ruleTitle: "userName",
   },
 };
 
 //create validation rules
-createValidator(validationRules);
+createValidator(rules);
 
 //validate your JSON payload
 //true means validation passed
 //false means validation failed
-const validationResponse = validate(req.body);
-
-//return single error
-console.log(getError());
-//return all errors
-console.log(getErrors());
+if(validate(req.body) === false){
+  console.log(getError());
+}
 ```
 
-Here's a step-by-step process on how you can validate your form with Octavalidate.
+```typescript
+//Typescript
 
-### Import and Initialize The Library
-
-```javascript
 //import library
-const Octavalidate = require("octavalidate-nodejs");
-
-//or
-import Octavalidate from 'octavalidate-nodejs';
-
-//If you are using TypeScript, do well to include the types
 import Octavalidate, { ValidationRules } from 'octavalidate-nodejs';
 
 //create new validation instance
+const octavalidate = new Octavalidate("ROUTE_IDENTIFIER");
+
+//get validation methods
+const { createValidator, validate, getError, getErrors } = octavalidate;
+
+//define validation rules with typechecking
+const rules: ValidationRules = {
+  username: {
+    required: true,
+    ruleTitle: "userName",
+  },
+};
+
+//create validation rules
+createValidator(rules);
+
+//validate your JSON payload
+//true means validation passed
+//false means validation failed
+if(validate(req.body) === false){
+  console.log(getError());
+}
+
+```
+Here's a step-by-step process on how you can validate your form with Octavalidate.
+
+### Import and initialize the library
+
+```typescript
+//import library
+const Octavalidate = require("octavalidate-nodejs");
+
+//If you are using TypeScript, use the import statement and do well to include the types
+import Octavalidate, { ValidationRules } from 'octavalidate-nodejs';
+
+//After importing the library, create a new validation instance
 const octavalidate = new Octavalidate("ROUTE_IDENTIFIER");
 ```
 
@@ -88,7 +111,6 @@ This means that if any phrase is found in your payload, be it `username`, `passw
 To use any of these options, provide it as an object and pass it as the second argument when creating an instance of Octavalidate.
 
 ```javascript
-//create new validation instance
 const octavalidate = new Octavalidate("ROUTE_IDENTIFIER", {
   strictMode: true, //false by default
   prohibitedWords: ["fake", "admin", "user", "super"], //any traces of these phrases will not be allowed in the payload
@@ -100,16 +122,14 @@ const octavalidate = new Octavalidate("ROUTE_IDENTIFIER", {
 Before instructing the library to validate your form, you must define a validation rule for each field. Creating validation rules is very simple and straightforward. Consider the following example;
 
 ```javascript
-const octavalidate = new Octavalidate("ROUTE_IDENTIFIER");
+const octavalidate = new Octavalidate("api/signup");
 
-//get validation methods
 const { createValidator } = octavalidate;
 
 //define validation rules
-const validationRules = {
+const rules = {
   username: {
     required: true,
-    type: "string",
   },
   age: {
     required: true,
@@ -118,14 +138,12 @@ const validationRules = {
   },
   maritalStatus: {
     required: true,
-    type: "string",
-    matches: ["single", "married", "divorced"], //this will become case-sensitive if strictMode is set to true
+    matches: ["single", "married", "divorced"],
   },
 };
 
 //if you are using TypeScript, you can rewrite the rules by including the type declaration you imported earlier
-
-const validationRules: ValidationRules = {
+const rules: ValidationRules = {
   username: {
     required: true,
     type: "string",
@@ -138,39 +156,39 @@ const validationRules: ValidationRules = {
   maritalStatus: {
     required: true,
     type: "string",
-    matches: ["single", "married", "divorced"], //this will become case-sensitive if strictMode is set to true
+    matches: ["single", "married", "divorced"],
   },
 };
 
 //assign validation rules
-createValidator(validationRules);
+createValidator(rules);
 ```
+
+> When using the `matches` rule type, the items in the array will become case-sensitive if `strictMode` is set to true in the configuration.
 
 In the example above, the validation rules for the `username` & `age` fields reads;
 
-- Your username is required and must be a string
+- Your username is required and must be a string (default)
 - Your age is required and must be a number
-- Your maritalStatus is required and must match single, married or divorced
-
-> So you can try to provide a username and age that fails the validation rule and watch the results.
+- Your maritalStatus is required and must be either single, married or divorced
 
 Below you can find all a list of supported validation rule types and their use cases.
 
 | Rule Type    | Usage                                                                                                         | Data Type       |
 | ------------ | ------------------------------------------------------------------------------------------------------------- | --------------- |
-| type         | Specifies the data type of the input (e.g., string, number, boolean, file).                                   | string          |
-| required     | Indicates that the field is mandatory and cannot be left blank.                                               | boolean         |
+| type         | Specifies the data type of the input (e.g., string, number, boolean, file). Default is `string`                                 | string          |
+| required     | Indicates that the field is mandatory and `cannot be left blank`.                                               | boolean         |
 | length       | Specifies the exact number of characters allowed in the field.                                                | number          |
 | minLength    | Specifies the minimum number of characters allowed in the field.                                              | number          |
 | maxLength    | Specifies the maximum number of characters allowed in the field.                                              | number          |
-| ruleTitle    | Specifies an inbuilt regular expression that can be used to validate a field. [Read more](#using-rule-titles) | string          |
+| ruleTitle    | Specifies a reference to an inbuilt regular expression that can be used to validate a field. [Read more](#using-rule-titles) | string          |
 | pattern      | A regular expression that the field must match to be considered valid.                                        | RegExp |
-| matches      | Ensures the value of a field matches a set of words or phrases. It becomes case-sensitive if `strictMode` is enabled.                                         | array []        |
+| matches      | Ensures the value of a field matches a set of words or phrases. It becomes case-sensitive if `strictMode` is enabled in the configuration.                                         | array []        |
 | errorMessage | A custom message displayed when the validation rule is not met. [Read more](#adding-error-messages)           | object {}       |
 
 ### Use Rule Titles
 
-Rule titles are inbuilt regular expressions that can be used to validate a field. For example, you can use this to validate email addresses, URLs, uppercase letters, lowercase letters, etc
+Rule titles are references to inbuilt regular expressions that can be used to validate a field. For example, you can use this to validate email addresses, URLs, uppercase letters, lowercase letters, etc
 
 ```javascript
 //JavaScript
@@ -178,29 +196,25 @@ Rule titles are inbuilt regular expressions that can be used to validate a field
 const validationRules = {
   gender: {
     required: true,
-    type: "string",
     ruleTitle: "lowerAlpha", //this will check against lowercase letters
   },
   orderId: {
     required: true,
-    type: "string",
     ruleTitle: "alphaNumeric", //this will check against letters and numbers
   },
 };
 ```
 
 ```typescript
-//Typescript
+//Typescript (always include the types)
 
 const validationRules: ValidationRules = {
   gender: {
     required: true,
-    type: "string",
     ruleTitle: "lowerAlpha", //this will check against lowercase letters
   },
   orderId: {
     required: true,
-    type: "string",
     ruleTitle: "alphaNumeric", //this will check against letters and numbers
   },
 };
@@ -229,7 +243,6 @@ Now, if you have a custom regular expression you would like to use for a field, 
 const validationRules = {
   phone: {
     required: true,
-    type: "string",
     pattern: /^\+234[789]\d{9}$/,
   },
 };
@@ -247,12 +260,10 @@ How boring would a validation error be withour a user friendly error message? Wi
 const validationRules = {
   phone: {
     required: true,
-    type: "string",
     pattern: /^\+234[789]\d{9}$/,
     errorMessage: {
       required: "Your phone number is required",
-      type: "Your phone number must be valid digits",
-      pattern: "The phone number you provided is not a valid Nigerian number",
+      pattern: "Phone number is not a valid Nigerian number",
     },
   },
 };
@@ -276,16 +287,13 @@ const { createValidator, validate } = octavalidate;
 const validationRules = {
   username: {
     required: true,
-    type: "string",
   },
   age: {
     required: true,
-    type: "number",
     length: 2,
   },
   maritalStatus: {
     required: true,
-    type: "string",
     matches: ["single", "married", "divorced"],
   },
 };
@@ -294,12 +302,16 @@ const validationRules = {
 createValidator(validationRules);
 
 //validate the payload
-const validationResult = validate(req.body); //perform validation on request body
+if(validate(req.body) === true){
+  //validation succeessful
+}else{
+  //validation failed
+} 
 //true means validation passed successfully
 //false means validation failed, in such case, please call the `getError` or `getErrors` method
 ```
 
-> You can also try to validate `req.query`, `req.file` and `req.files` so long as the format is in JSON.
+> You can also validate `req.query`, `req.file` and `req.files` so long as the payload is in JSON format.
 
 ### Validate Uploaded Files
 
@@ -316,7 +328,7 @@ Before you can validate a file, you need to make sure that the validation rule s
 ```javascript
 const validationRules = {
   profile: {
-    type: "file", //use this to inform octavalidate that this field (profile) is a file
+    type: "file", //this is mandatory for file validation
     required: true,
     errorMessage: {
       required: "Your profile picture is required",
@@ -325,17 +337,17 @@ const validationRules = {
 };
 ```
 
-Now depending on the package being used to handle file uploads, please make sure to pass in the appropriate payload to the validation function for the script to validate the file upload properly.
+Now depending on the package being used to handle file uploads, please make sure to pass in the appropriate JSON payload to the validation function for the script to validate the file upload properly.
 
 > The example below was tested to work well with `multer`. If you use a different package, you can try it out or open a PR so we try to support it as well 🙂
 
 ```javascript
 const octavalidate = new Octavalidate("ROUTE_IDENTIFIER");
+
 const { createValidator, validate } = octavalidate;
 
 const validationRules = {
   username: {
-    type: "string",
     required: true,
     errorMessage: {
       required: "Your username is required",
@@ -359,16 +371,26 @@ const validationRules = {
 
 createValidator(validationRules); //create validation rules
 
-validate({
+const param1 = {
   ...req.body, //destructure request body
   profile: req.file, //assign the file property from multer to `profile` so it matches your validation rule
-});
+}
 
-//In the case where you have multiple files assigned to a single input, you can do this
-validate({
+
+//In the case where you have multiple files assigned to a single field, you can do this
+
+const param2 = {
   ...req.body, //destructure request body
   certificates: req.files, //assign the files property from multer to `certificates` so it matches your validation rule
-});
+}
+
+if(validate(param1) === true){
+  //validation successful
+}
+
+if(validate(param2) === true){
+  //validation successful
+}
 ```
 
 Easy right? Below you will find some of the validation rule types that can be used to validate a file and their use cases.
@@ -377,7 +399,7 @@ Easy right? Below you will find some of the validation rule types that can be us
 | ------------- | ------------------------------------------------------------------------------------------------------------ | --------- |
 | type          | Specifies the data type of the input (e.g., string, number, boolean). The value itself **must** be a string. | string    |
 | required      | Indicates that the field is mandatory and cannot be left blank.                                              | boolean   |
-| mimeType      | Specifies the allowed MIME types for the file (e.g., image/jpeg, application/pdf).                           | string    |
+| mimeType      | Specifies the allowed MIME types for the file (e.g., image/jpeg, application/pdf). You can use a wildcard like; image/* - to accept all image files                           | string    |
 | fileSize      | Specifies the exact file size allowed. Eg; 1KB, 10MB, 20GB, 30TB, 40PB.                                      | string    |
 | minFileSize   | Specifies the minimum file size allowed. Eg; 1KB, 10MB, 20GB, 30TB, 40PB.                                    | string    |
 | maxFileSize   | Specifies the maximum file size allowed. Eg; 1KB, 10MB, 20GB, 30TB, 40PB.                                    | string    |
@@ -391,11 +413,11 @@ There are 2 methods that can be used to return validation errors. You can call t
 
 ```javascript
 const octavalidate = new Octavalidate("ROUTE_IDENTIFIER");
+
 const { createValidator, validate, getError, getErrors } = octavalidate;
 
 const validationRules = {
   username: {
-    type: "string",
     required: true,
     errorMessage: {
       required: "Your username is required"
@@ -458,6 +480,10 @@ $ npm test
 ## Author
 
 [Follow me on LinkedIn </> @Simon Ugorji](https://www.linkedin.com/in/simon-ugorji-57a6a41a3/)
+
+## Examples
+
+Please check the examples directory `examples` for more information on how to use this package.
 
 ## Support Me
 
